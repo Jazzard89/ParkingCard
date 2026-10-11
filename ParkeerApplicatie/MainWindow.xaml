@@ -1,8 +1,11 @@
 ﻿<Window x:Class="ParkeerApplicatie.MainWindow"
+        WindowState="Maximized" ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Parkeerregistratie" Width="1200" SizeToContent="Height"
         Background="#DEDEDE">
+    
+    
 
     <Window.Resources>
         <Style x:Key="RondeKnop" TargetType="Button">
@@ -23,117 +26,218 @@
         </Style>
     </Window.Resources>
 
-    <StackPanel Margin="20">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+    <StackPanel>
+        <Menu>
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel LastChildFill="False" HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
 
-            <StackPanel Margin="8" Grid.Row="0" Grid.Column="0">
-                <Label Content="Naam"/>
-                <TextBox x:Name="TxtNaam"/>
-                <Label Content="Voornaam"/>
-                <TextBox x:Name="TxtVoornaam"/>
-            </StackPanel>
+            <MenuItem Header="Bestand" DockPanel.Dock="Left">
+                <MenuItem Header="Kies bestand" Click="Laad_Click"/>
+            </MenuItem>
 
-            <StackPanel Margin="8" Grid.Row="0" Grid.Column="1">
-                <Label Content="Nummerplaat"/>
-                <TextBox x:Name="TxtNummerplaat"/>
-                <Label Content="Type wagen"/>
-                <ComboBox x:Name="CmbTypeWagen">
-                    <ComboBoxItem>Bestelwagen</ComboBoxItem>
-                    <ComboBoxItem>Personenwagen</ComboBoxItem>
-                    <ComboBoxItem>Vrachtwagen</ComboBoxItem>
-                </ComboBox>
-            </StackPanel>
+            <MenuItem Header="✕" Width="20" DockPanel.Dock="Right" Click="Close_Click"/>
+        </Menu>
 
-            <StackPanel Margin="8" Grid.Row="1" Grid.Column="0">
-                <Label Content="Firma"/>
-                <TextBox x:Name="TxtFirma"/>
-                <Label Content="Gsm nummer"/>
-                <TextBox x:Name="TxtGsm"/>
-            </StackPanel>
+        <TabControl>
+            <TabItem Header="Inschrijven">
+                <StackPanel Margin="20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-            <StackPanel Margin="8" Grid.Row="1" Grid.Column="1">
-                <Label Content="Bestemming"/>
-                <TextBox x:Name="TxtBestemming"/>
-                <Label Content="Contactpersoon"/>
-                <TextBox x:Name="TxtContactpersoon"/>
-            </StackPanel>
+                        <StackPanel Margin="8" Grid.Row="0" Grid.Column="0">
+                            <Label Content="Naam"/>
+                            <ComboBox x:Name="TxtNaam"
+                          IsEditable="True"
+                          IsTextSearchEnabled="True"
+                          TextBoxBase.TextChanged="Naamvelden_TextChanged"
+                          SelectionChanged="TxtNaam_SelectionChanged"
+                          StaysOpenOnEdit="True"/>
+                            <Label Content="Voornaam"/>
+                            <ComboBox x:Name="TxtVoornaam"
+                              IsEditable="True"
+                              IsTextSearchEnabled="True"
+                              TextBoxBase.TextChanged="Naamvelden_TextChanged"
+                              StaysOpenOnEdit="True"/>
+                        </StackPanel>
 
-            <StackPanel Margin="8" Grid.Row="2" Grid.Column="0">
-                <Label Content="Datum"/>
-                <DatePicker x:Name="DpDatum"/>
-                <Label Content="Uur inrijden"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="4*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" x:Name="TxtTijd" VerticalContentAlignment="Center"/>
-                    <Button Grid.Column="1" Content="Huidige tijd" Margin="5,0,0,0"
-            Click="HuidigeTijd_Click"/>
-                </Grid>
-            </StackPanel>
+                        <StackPanel Margin="8" Grid.Row="0" Grid.Column="1">
+                            <Label Content="Nummerplaat"/>
+                            <TextBox x:Name="TxtNummerplaat" IsEnabled="False"/>
+                            <Label Content="Type wagen"/>
+                            <ComboBox IsEnabled="False" x:Name="CmbTypeWagen">
+                                <ComboBoxItem IsSelected="True">Personenwagen</ComboBoxItem>
+                                <ComboBoxItem>Bestelwagen</ComboBoxItem>
+                                <ComboBoxItem>Vrachtwagen</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
 
-            <StackPanel Margin="8" Grid.Row="2" Grid.Column="1">
-                <Label Content="Dag kaart"/>
-                <StackPanel Orientation="Horizontal">
-                    <CheckBox x:Name="ChkDagkaart" Content="Ja" Margin="10 0"
-                          Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked"/>
-                    <CheckBox x:Name="ChkDagkaartNee" Content="Nee"
-                              IsChecked="True"
-                          Checked="CheckBox_Unchecked" Unchecked="CheckBox_Checked"/>
-                </StackPanel>
-                <Label Content="Locatie"/>
-                <ComboBox x:Name="TxtLocatie">
-                    <ComboBoxItem>Plant 1</ComboBoxItem>
-                    <ComboBoxItem>Plant 2</ComboBoxItem>
-                    <ComboBoxItem>Plant 3</ComboBoxItem>
-                    <ComboBoxItem>Andere</ComboBoxItem>
+                        <StackPanel Margin="8" Grid.Row="1" Grid.Column="0">
+                            <Label Content="Firma"/>
+                            <TextBox x:Name="TxtFirma" IsEnabled="False"/>
+                            <Label Content="Gsm nummer"/>
+                            <TextBox x:Name="TxtGsm" IsEnabled="False"/>
+                        </StackPanel>
 
-                </ComboBox>
-            </StackPanel>
-        </Grid>
+                        <StackPanel Margin="8" Grid.Row="1" Grid.Column="1">
+                            <Label Content="Contactpersoon"/>
+                            <TextBox x:Name="TxtContactpersoon" IsEnabled="False" />
 
-        <Grid Margin="10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+                            <Label Content="Locatie"/>
+                            <ComboBox x:Name="CbLocatie">
+                                <ComboBoxItem>Plant 1</ComboBoxItem>
+                                <ComboBoxItem>Plant 2</ComboBoxItem>
+                                <ComboBoxItem>Plant 3</ComboBoxItem>
+                                <ComboBoxItem>Alle</ComboBoxItem>
+                                <ComboBoxItem>Andere</ComboBoxItem>
 
-            <Label Grid.Column="0" Content="Momenteel on site:"
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Margin="8" Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+                            <StackPanel Orientation="Vertical" Margin="8">
+                                <Label Content="Datum"/>
+                                <DatePicker  Width="200" Height="25" x:Name="DpDatum"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="8">
+                                <Label Content="Uur inrijden"/>
+                                <Border BorderThickness="1" BorderBrush="#A1ADB8">
+                                    <StackPanel Orientation="Horizontal" Height="23">
+                                        <TextBox BorderThickness="1" BorderBrush="LightGray"  Width="200" Height="20" Grid.Column="0" x:Name="TxtTijd" VerticalContentAlignment="Center"/>
+                                        <Button Grid.Column="1" BorderThickness="3" BorderBrush="LightGray" Background="White" Foreground="DarkSlateGray" Content="⏱️" Margin="0" Click="HuidigeTijd_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel Margin="8">
+                                <Label Content="Dag kaart"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton x:Name="RbDagkaartJa" GroupName="Dagkaart" Content="Ja" Margin="8"/>
+                                    <RadioButton x:Name="RbDagkaartNee" GroupName="Dagkaart" Content="Nee" IsChecked="True" Margin="8"/>
+                                </StackPanel>
+
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" Margin="8" Orientation="Horizontal">
+                            <Button Style="{StaticResource RondeKnop}" Content="Wis" Click="Wis_Click"/>
+                            <Button Style="{StaticResource RondeKnop}" Content="Opslaan" Click="Opslaan_Click"/>
+                        </StackPanel>
+
+                    </Grid>
+
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" Content="Momenteel on site:"
            VerticalAlignment="Center"/>
 
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Style="{StaticResource RondeKnop}" Content="Annuleren" Click="Annuleren_Click"/>
-                <Button Style="{StaticResource RondeKnop}" Content="Opslaan" Click="Opslaan_Click"/>
-            </StackPanel>
-        </Grid>
 
-        <DataGrid x:Name="DgRegistraties"
+                    </Grid>
+
+                    <DataGrid x:Name="DgRegistraties2"
           AutoGenerateColumns="False"
                   Height="300px"
           IsReadOnly="True"
           CanUserAddRows="False"
           SelectionMode="Single"
           GridLinesVisibility="Horizontal"
-          AlternatingRowBackground="#F2F2F2"
           HeadersVisibility="Column">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Firma" Binding="{Binding Firma}" Width="*"/>
-                <DataGridTextColumn Header="Naam" Binding="{Binding Naam}" Width="*"/>
-                <DataGridCheckBoxColumn Header="Dag kaart" Binding="{Binding DagKaart}" Width="Auto"/>
-                <DataGridTextColumn Header="Tijd inrijden"
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+
+                                <EventSetter Event="MouseDoubleClick" Handler="Row_DoubleClick"/>
+
+                                <Setter Property="Background" Value="White"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=(ItemsControl.AlternationIndex)}" Value="1">
+                                        <Setter Property="Background" Value="#F2F2F2"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding FirstWarning}" Value="True">
+                                        <Setter Property="Background" Value="Orange"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding FinalWarning}" Value="True">
+                                        <Setter Property="Background" Value="Red"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Firma" Binding="{Binding Firma}" Width="*"/>
+                            <DataGridTextColumn Header="Voornaam" Binding="{Binding Voornaam}" Width="*"/>
+                            <DataGridTextColumn Header="Familienaam" Binding="{Binding Familienaam}" Width="*"/>
+                            <DataGridTextColumn Header="Locatie" Binding="{Binding Bestemming}" Width="*"/>
+                            <DataGridTextColumn Header="Telefoon" Binding="{Binding GsmChauffeur}" Width="*" />
+                            <DataGridCheckBoxColumn Header="Dag kaart" Binding="{Binding DagKaart}" Width="Auto"/>
+                            <DataGridTextColumn Header="Tijd inrijden"
                             Binding="{Binding TijdInrijden, StringFormat=HH:mm}"
                             Width="Auto"/>
-            </DataGrid.Columns>
-        </DataGrid>
+                        </DataGrid.Columns>
+                        <DataGrid.Resources>
+
+                        </DataGrid.Resources>
+                    </DataGrid>
+
+
+                </StackPanel>
+            </TabItem>
+
+
+
+            <TabItem Header="Overzicht">
+                <DataGrid x:Name="DgRegistraties"
+          AutoGenerateColumns="False"
+                  
+          IsReadOnly="True"
+          CanUserAddRows="False"
+          SelectionMode="Single"
+          GridLinesVisibility="Horizontal"
+          AlternatingRowBackground="#F2F2F2"
+          HeadersVisibility="Column">
+
+
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+
+                            <EventSetter Event="MouseDoubleClick" Handler="OverviewRow_DoubleClick"/>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Datum" Binding="{Binding Datum}" Width="*"/>
+                        <DataGridTextColumn Header="Firma" Binding="{Binding Firma}" Width="*"/>
+                        <DataGridTextColumn Header="Nummerplaat" Binding="{Binding Nummerplaat}" Width="*"/>
+                        <DataGridTextColumn Header="Voornaam" Binding="{Binding Voornaam}" Width="*"/>
+                        <DataGridTextColumn Header="Familienaam" Binding="{Binding Familienaam}" Width="*"/>
+                        <DataGridTextColumn Header="GSM" Binding="{Binding GsmChauffeur}" Width="*"/>
+                        <DataGridTextColumn Header="Contact persoon" Binding="{Binding GsmContactpersoon}" Width="*"/>
+                        <DataGridCheckBoxColumn Header="Dag kaart" Binding="{Binding DagKaart}" Width="Auto"/>
+                        <DataGridTextColumn Header="Tijd inrijden" Binding="{Binding TijdInrijden, StringFormat=HH:mm}"
+                            Width="Auto" />
+                        <DataGridTextColumn Header="Tijd Uitrijden" Binding="{Binding TijdUitrijden, StringFormat=HH:mm}"
+                            Width="Auto" />
+
+
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+
+
     </StackPanel>
 </Window>
