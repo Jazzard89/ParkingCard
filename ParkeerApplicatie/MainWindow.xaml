@@ -4,8 +4,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Parkeerregistratie" Width="1200" SizeToContent="Height"
         Background="#DEDEDE">
-    
-    
+
+
 
     <Window.Resources>
         <Style x:Key="RondeKnop" TargetType="Button">
@@ -149,6 +149,7 @@
                     </Grid>
 
                     <DataGrid x:Name="DgRegistraties2"
+          AlternationCount="2"
           AutoGenerateColumns="False"
                   Height="300px"
           IsReadOnly="True"
@@ -181,7 +182,7 @@
                             <DataGridTextColumn Header="Voornaam" Binding="{Binding Voornaam}" Width="*"/>
                             <DataGridTextColumn Header="Familienaam" Binding="{Binding Familienaam}" Width="*"/>
                             <DataGridTextColumn Header="Locatie" Binding="{Binding Bestemming}" Width="*"/>
-                            <DataGridTextColumn Header="Telefoon" Binding="{Binding GsmChauffeur}" Width="*" />
+                            <DataGridTextColumn Header="Telefoon" Binding="{Binding Gsm}" Width="*" />
                             <DataGridCheckBoxColumn Header="Dag kaart" Binding="{Binding DagKaart}" Width="Auto"/>
                             <DataGridTextColumn Header="Tijd inrijden"
                             Binding="{Binding TijdInrijden, StringFormat=HH:mm}"
@@ -216,15 +217,16 @@
                             <EventSetter Event="MouseDoubleClick" Handler="OverviewRow_DoubleClick"/>
                         </Style>
                     </DataGrid.RowStyle>
-                    
+
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Datum" Binding="{Binding Datum}" Width="*"/>
+                        <DataGridTextColumn Header="Datum" Binding="{Binding Datum, StringFormat=dd/MM/yyyy}" Width="*"/>
                         <DataGridTextColumn Header="Firma" Binding="{Binding Firma}" Width="*"/>
                         <DataGridTextColumn Header="Nummerplaat" Binding="{Binding Nummerplaat}" Width="*"/>
                         <DataGridTextColumn Header="Voornaam" Binding="{Binding Voornaam}" Width="*"/>
                         <DataGridTextColumn Header="Familienaam" Binding="{Binding Familienaam}" Width="*"/>
-                        <DataGridTextColumn Header="GSM" Binding="{Binding GsmChauffeur}" Width="*"/>
-                        <DataGridTextColumn Header="Contact persoon" Binding="{Binding GsmContactpersoon}" Width="*"/>
+                        <DataGridTextColumn Header="Locatie" Binding="{Binding Bestemming}" Width="*"/>
+                        <DataGridTextColumn Header="GSM" Binding="{Binding Gsm}" Width="*"/>
+                        <DataGridTextColumn Header="Contact persoon" Binding="{Binding Contactpersoon}" Width="*"/>
                         <DataGridCheckBoxColumn Header="Dag kaart" Binding="{Binding DagKaart}" Width="Auto"/>
                         <DataGridTextColumn Header="Tijd inrijden" Binding="{Binding TijdInrijden, StringFormat=HH:mm}"
                             Width="Auto" />
