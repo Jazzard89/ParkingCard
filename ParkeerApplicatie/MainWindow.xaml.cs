@@ -29,6 +29,8 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<string> _familienamen = new();
     private readonly ObservableCollection<string> _voornamen = new();
 
+    public bool PostOverste { get; set; }
+
     private string? _excelPad;
 
     public MainWindow()
@@ -52,6 +54,8 @@ public partial class MainWindow : Window
 
         ZetHuidigeDatumEnTijd();
         LaadVoorkeur();
+
+        ToonPostOversteVelden();
     }
 
     #region Bestand en voorkeuren
@@ -124,6 +128,26 @@ public partial class MainWindow : Window
         }
     }
 
+    private void PostOverste_Click(object sender, RoutedEventArgs e)
+    {
+        PostOverste = ((MenuItem)sender).IsChecked;
+        ToonPostOversteVelden();
+    }
+
+    /// <summary>Toont of verbergt de velden voor de termijnkaart, afhankelijk van PostOverste.</summary>
+    private void ToonPostOversteVelden()
+    {
+        var zichtbaar = PostOverste ? Visibility.Visible : Visibility.Collapsed;
+        RbDagkaartTermijn.Visibility = zichtbaar;
+        PnlDatumTot.Visibility = zichtbaar;   // de hele StackPanel, niet enkel de DatePicker
+
+        if (!PostOverste)
+        {
+            DpDatumTot.SelectedDate = null;
+            if (RbDagkaartTermijn.IsChecked == true) RbDagkaartNee.IsChecked = true;
+        }
+    }
+
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
     /// <summary>Voert een schrijfactie op het Excel-bestand uit en toont een duidelijke melding bij problemen.</summary>
@@ -181,6 +205,7 @@ public partial class MainWindow : Window
         var typeWagen = (CmbTypeWagen.SelectedItem as ComboBoxItem)?.Content?.ToString();
         var locatie = (CbLocatie.SelectedItem as ComboBoxItem)?.Content?.ToString();
 
+
         if (new[] { naam, voornaam, firma, gsm, contact, plaat }.Any(string.IsNullOrWhiteSpace)
             || typeWagen is null || locatie is null)
         {
@@ -222,6 +247,7 @@ public partial class MainWindow : Window
             Bestemming = locatie,
             Contactpersoon = contact,
             DagKaart = RbDagkaartJa.IsChecked == true,
+            termijnKaart = RbDagkaartTermijn.IsChecked == true,
             TijdInrijden = datum.Date + tijd,
             Gsm = gsm,
             TypeVoertuig = typeWagen,
@@ -230,6 +256,7 @@ public partial class MainWindow : Window
         if (!ProbeerSchrijven(() => _store.Voeg(_excelPad, reg))) return;
 
         _alle.Add(reg);
+        new Print(reg) { Owner = this }.ShowDialog();
         VulSuggesties();
         WisFormulier();
     }
@@ -259,6 +286,7 @@ public partial class MainWindow : Window
         TxtFirma.IsEnabled = value;
         TxtGsm.IsEnabled = value;
         TxtContactpersoon.IsEnabled = value;
+        BtnOpslaan.IsEnabled = value;
     }
 
     #endregion
@@ -327,18 +355,35 @@ public partial class MainWindow : Window
         if (sender is not DataGridRow row || row.DataContext is not Registratie reg) return;
         if (_excelPad is null) return;
 
-        var antwoord = MessageBox.Show($"{reg.Voornaam} {reg.Familienaam} uitschrijven?",
+        MessageBoxResult antwoord = MessageBox.Show($"{reg.Voornaam} {reg.Familienaam} uitschrijven?",
                                        "Uitschrijven", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (antwoord != MessageBoxResult.Yes) return;
 
-        var nu = DateTime.Now;
-        nu = new DateTime(nu.Year, nu.Month, nu.Day, nu.Hour, nu.Minute, 0);
+        MessageBoxResult sanctie = new MessageBoxResult();
+        if (antwoord != MessageBoxResult.Yes)
+        {
+            sanctie = MessageBox.Show($"{reg.Voornaam} {reg.Familienaam} een waarschuwing geven?", "Waarschuwing", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (sanctie != MessageBoxResult.Yes)
+            {
+                return;
+            }
+        }
 
-        if (!ProbeerSchrijven(() => _store.ZetUitrijden(_excelPad, reg, nu))) return;
 
-        reg.TijdUitrijden = nu;
-        _aanwezigVandaag.Refresh();      // verdwijnt uit "Momenteel on site"
-        DgRegistraties.Items.Refresh();  // toont de uitrijtijd in het overzicht
+        if (sanctie == MessageBoxResult.Yes) 
+        {
+            MessageBox.Show("Sanctie opgelegd");
+        }
+        else
+        {
+            var nu = DateTime.Now;
+            nu = new DateTime(nu.Year, nu.Month, nu.Day, nu.Hour, nu.Minute, 0);
+
+            if (!ProbeerSchrijven(() => _store.ZetUitrijden(_excelPad, reg, nu))) return;
+
+            reg.TijdUitrijden = nu;
+            _aanwezigVandaag.Refresh();      // verdwijnt uit "Momenteel on site"
+            DgRegistraties.Items.Refresh();  // toont de uitrijtijd in het overzicht
+        }
     }
 
     private void OverviewRow_DoubleClick(object sender, MouseButtonEventArgs e)

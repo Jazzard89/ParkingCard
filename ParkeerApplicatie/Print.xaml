@@ -1,0 +1,133 @@
+﻿<Window x:Class="ParkeerApplicatie.Print"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ParkeerApplicatie"
+        mc:Ignorable="d"
+        Title="Parkeerkaart" Height="900" Width="620">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Content="Afdrukken" Width="120" Height="32" IsDefault="True" Click="Afdrukken_Click"/>
+            <Button Content="Sluiten" Width="90" Height="32" Margin="8,0,0,0" IsCancel="True"/>
+        </StackPanel>
+
+        <Grid x:Name="Kaart">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="up" Grid.Row="0"  Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Dag kaart -->
+                <DockPanel Grid.Row="0" Background="{Binding ColorToday}" Visibility="Collapsed" x:Name="ViewDagKaart">
+                    <Border CornerRadius="10" Background="Blue" Width="70" Height="70" HorizontalAlignment="Left" Margin="8">
+                        <Label Content="P" Foreground="White"  FontSize="50" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-6,0,0"/>
+                    </Border>
+                    <StackPanel Margin="8" HorizontalAlignment="Center">
+                        <Label Content="DAGKAART" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <Label Content="{Binding DatumVoluit}" FontSize="20" HorizontalAlignment="Center" />
+                    </StackPanel>
+                    <Image Source="/Assets/logo.jpg" HorizontalAlignment="Right" Margin="8"/>
+                </DockPanel>
+
+
+                <!-- Uur kaart -->
+                <DockPanel Grid.Row="0" Background="White" Visibility="Collapsed" x:Name="ViewUurKaart">
+                    <Border CornerRadius="10" Background="Blue" Width="70" Height="70" HorizontalAlignment="Left" Margin="8">
+                        <Label Content="P" Foreground="White"  FontSize="50" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-6,0,0"/>
+                    </Border>
+                    <StackPanel Margin="8" HorizontalAlignment="Center">
+                        <Label Content="60 MINUTEN KAART" FontSize="30" Foreground="{Binding ColorToday}" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding DatumVoluit}" FontSize="20" HorizontalAlignment="Center" />
+                            <Label Content="{Binding TijdTekst}" FontSize="20" Foreground="{Binding ColorToday}" FontWeight="Black" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+                    <Image Source="/Assets/logo.jpg" HorizontalAlignment="Right" Margin="8"/>
+                </DockPanel>
+
+
+                <!-- Lange termijn kaart -->
+                <DockPanel Grid.Row="0" Background="Black" Visibility="Collapsed" x:Name="ViewtermijnKaart">
+                    <Border CornerRadius="10" Background="Blue" Width="70" Height="70" HorizontalAlignment="Left" Margin="8">
+                        <Label Content="P" Foreground="White"  FontSize="50" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-6,0,0"/>
+                    </Border>
+                    <StackPanel Margin="8" HorizontalAlignment="Center">
+                        <Label Content="SITE KAART" FontSize="30" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding DatumVoluit}" Foreground="White" FontSize="20" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+                    <Image Source="/Assets/logo.jpg" HorizontalAlignment="Right" Margin="8"/>
+                </DockPanel>
+
+                <Grid Grid.Row="1" Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Nummerplaat" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="1" Grid.Column="0" Content="GSM Chauffeur" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="2" Grid.Column="0" Content="Type voertuig" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="3" Grid.Column="0" Content="Firma" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="4" Grid.Column="0" Content="Naam Chauffeur" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="5" Grid.Column="0" Content="Contactpersoon Sanofi" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="6" Grid.Column="0" Content="Locatie" BorderThickness="1" BorderBrush="DarkGray" />
+
+                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding Registratie.Nummerplaat}" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding Registratie.Gsm}" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding Registratie.TypeVoertuig}" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding Registratie.Firma}" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="4" Grid.Column="1" Content="{Binding NaamChauffeur}" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="5" Grid.Column="1" Content="{Binding Registratie.Contactpersoon}" BorderThickness="1" BorderBrush="DarkGray" />
+                    <Label Grid.Row="6" Grid.Column="1" Content="{Binding Registratie.Bestemming}" BorderThickness="1" BorderBrush="DarkGray" />
+                </Grid>
+
+                <DockPanel Grid.Row="2" Margin="8" Background="#04202e">
+                    <Image Source="/Assets/securitas_electronic_security_logo.jpg" HorizontalAlignment="Left"/>
+
+                    <StackPanel VerticalAlignment="Center">
+                        <Label Foreground="Red" FontWeight="Bold" Content="Attention! Max speed on site: 20km/h" HorizontalAlignment="Center"/>
+                        <Label Foreground="White" Content="Security: +32 14 56 4994" HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                </DockPanel>
+
+            </Grid>
+            <Border Grid.Row="1"  Margin="10" BorderBrush="DarkGray" BorderThickness="3" CornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Label FontSize="35" HorizontalAlignment="Center" Content="Display this card towards the" Grid.Row="0" />
+                    <Label FontSize="35" HorizontalAlignment="Center" Content="camera when entering." Grid.Row="1"/>
+                    <Label FontSize="35" HorizontalAlignment="Center" Content="Afterwards place the card" Grid.Row="2"/>
+                    <Label FontSize="35" HorizontalAlignment="Center" Content="visibly on your dashboard." Grid.Row="3"/>
+
+                </Grid>
+
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

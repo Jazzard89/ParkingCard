@@ -36,6 +36,8 @@
 
             <MenuItem Header="Bestand" DockPanel.Dock="Left">
                 <MenuItem Header="Kies bestand" Click="Laad_Click"/>
+                <MenuItem Header="Postoverste" IsCheckable="True" Click="PostOverste_Click"/>
+
             </MenuItem>
 
             <MenuItem Header="✕" Width="20" DockPanel.Dock="Right" Click="Close_Click"/>
@@ -109,6 +111,12 @@
                                 <Label Content="Datum"/>
                                 <DatePicker  Width="200" Height="25" x:Name="DpDatum"/>
                             </StackPanel>
+
+                            <StackPanel x:Name="PnlDatumTot" Orientation="Vertical" Margin="8" Visibility="Collapsed">
+                                <Label Content="Tot Datum"/>
+                                <DatePicker  Width="200" Height="25" x:Name="DpDatumTot"/>
+                            </StackPanel>
+
                             <StackPanel Orientation="Vertical" Margin="8">
                                 <Label Content="Uur inrijden"/>
                                 <Border BorderThickness="1" BorderBrush="#A1ADB8">
@@ -118,21 +126,29 @@
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
+                        </StackPanel>
 
-                            <StackPanel Margin="8">
+                        <DockPanel Grid.Column="1" Grid.Row="2">
+
+
+                            <StackPanel Margin="8" HorizontalAlignment="Left">
                                 <Label Content="Dag kaart"/>
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton x:Name="RbDagkaartJa" GroupName="Dagkaart" Content="Ja" Margin="8"/>
                                     <RadioButton x:Name="RbDagkaartNee" GroupName="Dagkaart" Content="Nee" IsChecked="True" Margin="8"/>
+                                    <RadioButton x:Name="RbDagkaartTermijn" GroupName="Dagkaart" Content="Termijn" Visibility="Collapsed" Margin="8"/>
                                 </StackPanel>
 
                             </StackPanel>
-                        </StackPanel>
 
-                        <StackPanel Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" Margin="8" Orientation="Horizontal">
-                            <Button Style="{StaticResource RondeKnop}" Content="Wis" Click="Wis_Click"/>
-                            <Button Style="{StaticResource RondeKnop}" Content="Opslaan" Click="Opslaan_Click"/>
-                        </StackPanel>
+                            <StackPanel  HorizontalAlignment="Right" Margin="8" Orientation="Horizontal">
+                                <Button Style="{StaticResource RondeKnop}" Content="Wis" Click="Wis_Click"/>
+                                <Button Style="{StaticResource RondeKnop}" x:Name="BtnOpslaan" IsEnabled="False" Content="Opslaan" Click="Opslaan_Click"/>
+                            </StackPanel>
+
+
+                        </DockPanel>
+
 
                     </Grid>
 

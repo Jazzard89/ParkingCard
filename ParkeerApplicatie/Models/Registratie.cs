@@ -12,6 +12,8 @@ public class Registratie
     public int RijNummer { get; set; }
 
     public DateTime Datum { get; set; }
+    public DateTime? DatumTot { get; set; }
+
     public string Firma { get; set; } = "";
     public string Nummerplaat { get; set; } = "";
     public string Familienaam { get; set; } = "";
@@ -20,6 +22,7 @@ public class Registratie
     public string Contactpersoon { get; set; } = "";
     public bool Vergunning { get; set; }
     public bool DagKaart { get; set; }
+    public bool? termijnKaart { get; set; }
     public DateTime TijdInrijden { get; set; }
     public DateTime? TijdUitrijden { get; set; }
     public string Gsm { get; set; } = "";
