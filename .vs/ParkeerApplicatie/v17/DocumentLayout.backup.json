@@ -11,16 +11,16 @@
       "RelativeMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|solutionrelative:parkeerapplicatie\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|c:\\users\\jaspe\\desktop\\parkeerapplicatie\\parkeerapplicatie\\print.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|solutionrelative:parkeerapplicatie\\print.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|c:\\users\\jaspe\\desktop\\parkeerapplicatie\\parkeerapplicatie\\models\\registratie.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|solutionrelative:parkeerapplicatie\\models\\registratie.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|c:\\users\\jaspe\\desktop\\parkeerapplicatie\\parkeerapplicatie\\services\\registratiestore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|solutionrelative:parkeerapplicatie\\services\\registratiestore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|c:\\users\\jaspe\\desktop\\parkeerapplicatie\\parkeerapplicatie\\models\\registratie.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|solutionrelative:parkeerapplicatie\\models\\registratie.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|c:\\users\\jaspe\\desktop\\parkeerapplicatie\\parkeerapplicatie\\print.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6882F938-9087-408C-B7C8-59A5D334619E}|ParkeerApplicatie\\ParkeerApplicatie.csproj|solutionrelative:parkeerapplicatie\\print.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,7 +38,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "Print.xaml.cs",
               "DocumentMoniker": "C:\\Users\\jaspe\\Desktop\\ParkeerApplicatie\\ParkeerApplicatie\\Print.xaml.cs",
               "RelativeDocumentMoniker": "ParkeerApplicatie\\Print.xaml.cs",
@@ -51,13 +51,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "Registratie.cs",
               "DocumentMoniker": "C:\\Users\\jaspe\\Desktop\\ParkeerApplicatie\\ParkeerApplicatie\\Models\\Registratie.cs",
               "RelativeDocumentMoniker": "ParkeerApplicatie\\Models\\Registratie.cs",
               "ToolTip": "C:\\Users\\jaspe\\Desktop\\ParkeerApplicatie\\ParkeerApplicatie\\Models\\Registratie.cs",
               "RelativeToolTip": "ParkeerApplicatie\\Models\\Registratie.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAA7wCEAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAABoAAAAAAAAAAAA2wDIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-20T12:47:36.135Z",
               "EditorCaption": ""
@@ -70,7 +70,7 @@
               "RelativeDocumentMoniker": "ParkeerApplicatie\\Services\\Registratiestore.cs",
               "ToolTip": "C:\\Users\\jaspe\\Desktop\\ParkeerApplicatie\\ParkeerApplicatie\\Services\\Registratiestore.cs",
               "RelativeToolTip": "ParkeerApplicatie\\Services\\Registratiestore.cs",
-              "ViewState": "AgIAAGoAAAAAAAAAAAAowH0AAABBAAAAAAAAAA==",
+              "ViewState": "AgIAAK8AAAAAAAAAAAAcwM0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-11T18:12:45.083Z",
               "EditorCaption": ""
@@ -81,8 +81,8 @@
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Users\\jaspe\\Desktop\\ParkeerApplicatie\\ParkeerApplicatie\\MainWindow.xaml",
               "RelativeDocumentMoniker": "ParkeerApplicatie\\MainWindow.xaml",
-              "ToolTip": "C:\\Users\\jaspe\\Desktop\\ParkeerApplicatie\\ParkeerApplicatie\\MainWindow.xaml*",
-              "RelativeToolTip": "ParkeerApplicatie\\MainWindow.xaml*",
+              "ToolTip": "C:\\Users\\jaspe\\Desktop\\ParkeerApplicatie\\ParkeerApplicatie\\MainWindow.xaml",
+              "RelativeToolTip": "ParkeerApplicatie\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-10-06T16:01:26.924Z",
               "EditorCaption": ""
@@ -95,7 +95,7 @@
               "RelativeDocumentMoniker": "ParkeerApplicatie\\MainWindow.xaml.cs",
               "ToolTip": "C:\\Users\\jaspe\\Desktop\\ParkeerApplicatie\\ParkeerApplicatie\\MainWindow.xaml.cs*",
               "RelativeToolTip": "ParkeerApplicatie\\MainWindow.xaml.cs*",
-              "ViewState": "AgIAAE0AAAAAAAAAAAAmwFoAAAALAAAAAAAAAA==",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAlwHwAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-06T16:01:25.473Z",
               "EditorCaption": ""

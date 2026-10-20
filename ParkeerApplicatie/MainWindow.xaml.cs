@@ -114,7 +114,7 @@ public partial class MainWindow : Window
         {
             var echtPad = LosOpSnelkoppeling(pad);
 
-            switch (soort)
+            switch (soort) //test
             {
                 case FileType.Parkeerkaart:
                     var rijen = _store.Laad(echtPad);
