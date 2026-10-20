@@ -126,7 +126,7 @@ public partial class MainWindow : Window
                     break;
 
                 case FileType.EvOvertreders:
-                    // TODO: inlezen met een eigen store
+                    // TODO: inlezen met een eigen stor
                     break;
 
                 case FileType.EvKaarthouders:
