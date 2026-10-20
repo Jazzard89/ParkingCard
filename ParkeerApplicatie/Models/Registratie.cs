@@ -20,21 +20,25 @@ public class Registratie
     public string Contactpersoon { get; set; } = "";
     public bool Vergunning { get; set; }
     public bool DagKaart { get; set; }
-    public DateTime TijdInrijden { get; set; }
-    public DateTime? TijdUitrijden { get; set; }
+    public DateTime UurInrijden { get; set; }
+    public DateTime? UurUitrijden { get; set; }
     public string Gsm { get; set; } = "";
     public string TypeVoertuig { get; set; } = "";
 
-    public bool IsAanwezig => TijdUitrijden is null;
+    public bool IsAanwezig => UurUitrijden is null;
     public bool IsAanwezigVandaag => IsAanwezig && Datum.Date == DateTime.Today;
 
-    private double MinutenAanwezig => (DateTime.Now - TijdInrijden).TotalMinutes;
+    private double MinutenAanwezig => (DateTime.Now - UurInrijden).TotalMinutes;
 
     public bool FinalWarning => IsAanwezig && !DagKaart && MinutenAanwezig > RoodNaMinuten;
 
     public bool FirstWarning => IsAanwezig && !DagKaart
                                 && MinutenAanwezig > OranjeNaMinuten
                                 && !FinalWarning;
+
+    public int? Fault {  get; set; }
+
+    public bool HasFault => Fault > 0;
 
     /// <summary>Twee zones botsen als ze gelijk zijn, of als een van beide "Alle" is.</summary>
     public static bool ZonesOverlappen(string a, string b) =>

@@ -25,6 +25,7 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<Registratie> _alle = new();
     // Gefilterde weergave: wie vandaag aanwezig is (nog niet uitgeschreven).
     private readonly ICollectionView _aanwezigVandaag;
+    private readonly ICollectionView _overzicht;
 
     private readonly ObservableCollection<string> _familienamen = new();
     private readonly ObservableCollection<string> _voornamen = new();
@@ -38,11 +39,14 @@ public partial class MainWindow : Window
         _aanwezigVandaag = new CollectionViewSource { Source = _alle }.View;
         _aanwezigVandaag.Filter = o => o is Registratie r && r.IsAanwezigVandaag;
         _aanwezigVandaag.SortDescriptions.Add(
-            new SortDescription(nameof(Registratie.TijdInrijden), ListSortDirection.Ascending));
+            new SortDescription(nameof(Registratie.UurInrijden), ListSortDirection.Ascending));
 
         TxtNaam.ItemsSource = _familienamen;
         TxtVoornaam.ItemsSource = _voornamen;
-        DgRegistraties.ItemsSource = _alle;
+        _overzicht = new CollectionViewSource { Source = _alle }.View;
+        _overzicht.Filter = OverzichtFilter;
+        DgRegistraties.ItemsSource = _overzicht;
+        
         DgRegistraties2.ItemsSource = _aanwezigVandaag;
 
         // Her-evalueert filter en waarschuwingskleuren (oranje/rood) regelmatig.
@@ -82,12 +86,13 @@ public partial class MainWindow : Window
     {
         try
         {
-            var rijen = _store.Laad(pad);
+            var echtPad = LosOpSnelkoppeling(pad);
+            var rijen = _store.Laad(echtPad);
 
             _alle.Clear();
             foreach (var r in rijen) _alle.Add(r);
 
-            _excelPad = pad;
+            _excelPad = echtPad;
             VulSuggesties();
             _aanwezigVandaag.Refresh();
             return true;
@@ -112,7 +117,7 @@ public partial class MainWindow : Window
         var dialog = new OpenFileDialog
         {
             Title = "Kies het Excel bestand",
-            Filter = "Excel bestanden (*.xlsx)|*.xlsx"
+            Filter = "Excel of snelkoppeling (*.xlsx;*.xlsm;*.url)|*.xlsx;*.xlsm;*.url|Alle bestanden (*.*)|*.*",
         };
         if (dialog.ShowDialog() != true) return;
 
@@ -222,7 +227,7 @@ public partial class MainWindow : Window
             Bestemming = locatie,
             Contactpersoon = contact,
             DagKaart = RbDagkaartJa.IsChecked == true,
-            TijdInrijden = datum.Date + tijd,
+            UurInrijden = datum.Date + tijd,
             Gsm = gsm,
             TypeVoertuig = typeWagen,
         };
@@ -327,18 +332,75 @@ public partial class MainWindow : Window
         if (sender is not DataGridRow row || row.DataContext is not Registratie reg) return;
         if (_excelPad is null) return;
 
-        var antwoord = MessageBox.Show($"{reg.Voornaam} {reg.Familienaam} uitschrijven?",
-                                       "Uitschrijven", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (antwoord != MessageBoxResult.Yes) return;
+        var uitschrijven = MessageBox.Show($"{reg.Voornaam} {reg.Familienaam} uitschrijven?",
+            "Uitschrijven", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-        var nu = DateTime.Now;
-        nu = new DateTime(nu.Year, nu.Month, nu.Day, nu.Hour, nu.Minute, 0);
+        if (uitschrijven == MessageBoxResult.Yes)
+        {
+            var nu = DateTime.Now;
+            nu = new DateTime(nu.Year, nu.Month, nu.Day, nu.Hour, nu.Minute, 0);
 
-        if (!ProbeerSchrijven(() => _store.ZetUitrijden(_excelPad, reg, nu))) return;
+            if (!ProbeerSchrijven(() => _store.ZetUitrijden(_excelPad, reg, nu))) return;
+            reg.UurUitrijden = nu;
+        }
+        else
+        {
+            var waarschuwen = MessageBox.Show($"{reg.Voornaam} {reg.Familienaam} een waarschuwing geven?",
+                "Waarschuwing", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (waarschuwen != MessageBoxResult.Yes) return;   // niets doen
 
-        reg.TijdUitrijden = nu;
-        _aanwezigVandaag.Refresh();      // verdwijnt uit "Momenteel on site"
-        DgRegistraties.Items.Refresh();  // toont de uitrijtijd in het overzicht
+            var nieuw = (reg.Fault ?? 0) + 1;
+            if (!ProbeerSchrijven(() => _store.ZetFault(_excelPad, reg, nieuw))) return;
+            reg.Fault = nieuw;
+        }
+
+        _aanwezigVandaag.Refresh();
+        DgRegistraties.Items.Refresh();
+    }
+
+    private void Filter_TextChanged(object sender, TextChangedEventArgs e) => _overzicht?.Refresh();
+
+    private static bool Bevat(string? waarde, string zoek) =>
+        zoek.Length == 0
+        || (waarde ?? "").Contains(zoek, StringComparison.CurrentCultureIgnoreCase);
+
+    private bool OverzichtFilter(object o)
+    {
+        if (o is not Registratie r) return false;
+
+        return Bevat(r.Datum.ToString("dd/MM/yyyy"), txtSDatum.Text.Trim())
+            && Bevat(r.Firma, txtSFirma.Text.Trim())
+            && Bevat(r.Nummerplaat, txtSNummerplaat.Text.Trim())
+            && Bevat(r.Voornaam, txtSVoornaam.Text.Trim())
+            && Bevat(r.Familienaam, txtSFamilienaam.Text.Trim())
+            && Bevat(r.Bestemming, txtSLocatie.Text.Trim())
+            && Bevat(r.Gsm, txtSGSM.Text.Trim())
+            && Bevat(r.Contactpersoon, txtSContactpersoon.Text.Trim())
+            && Bevat(r.DagKaart ? "ja" : "nee", txtSDagkaart.Text.Trim())
+            && Bevat(r.UurInrijden.ToString("HH:mm"), txtSTijdInrijden.Text.Trim())
+            && Bevat(r.UurUitrijden?.ToString("HH:mm"), txtSTijdUitrijden.Text.Trim())
+            && Bevat((r.Fault ?? 0).ToString(), txtSWaarschuwingen.Text.Trim());
+    }
+    private static string LosOpSnelkoppeling(string pad)
+    {
+        if (!pad.EndsWith(".url", StringComparison.OrdinalIgnoreCase)) return pad;
+
+        var regel = File.ReadLines(pad)
+            .FirstOrDefault(l => l.StartsWith("URL=", StringComparison.OrdinalIgnoreCase));
+        var url = regel?[4..].Trim();
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            throw new InvalidDataException("De snelkoppeling bevat geen geldige URL.");
+
+        if (!uri.IsFile)
+            throw new InvalidDataException(
+                "Deze snelkoppeling verwijst naar een webadres (http/https). " +
+                "Kies een snelkoppeling naar een bestand op de schijf of een netwerkmap.");
+
+        if (!File.Exists(uri.LocalPath))
+            throw new InvalidDataException($"Het doelbestand bestaat niet: {uri.LocalPath}");
+
+        return uri.LocalPath;
     }
 
     private void OverviewRow_DoubleClick(object sender, MouseButtonEventArgs e)
@@ -354,10 +416,12 @@ public partial class MainWindow : Window
             $"Locatie: {reg.Bestemming}\n" +
             $"Dagkaart: {(reg.DagKaart ? "ja" : "nee")}\n" +
             $"Datum: {reg.Datum:dd/MM/yyyy}\n" +
-            $"Ingereden: {reg.TijdInrijden:HH:mm}\n" +
-            $"Uitgereden: {(reg.TijdUitrijden is { } uit ? uit.ToString("HH:mm") : "-")}",
+            $"Ingereden: {reg.UurInrijden:HH:mm}\n" +
+            $"Uitgereden: {(reg.UurUitrijden is { } uit ? uit.ToString("HH:mm") : "-")}",
             "Details", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
+
     #endregion
+
 }
