@@ -35,8 +35,12 @@
             </Menu.ItemsPanel>
 
             <MenuItem Header="Bestand" DockPanel.Dock="Left">
-                <MenuItem Header="Kies bestand" Click="Laad_Click"/>
+
                 <MenuItem Header="Postoverste" IsCheckable="True" Click="PostOverste_Click"/>
+
+                <MenuItem Name="parkeerkaart" Header="Kies bestand voor Parkeerkaart" Click="LaadParkeerKaart_Click"/>
+                <MenuItem Name="evOvertreders" Header="Kies bestand voor EV Parking overtreders" Click="LaadParkeerKaart_Click"/>
+                <MenuItem Name="evKaarthouders" Header="Kies bestand voor EV Parking kaarthouders" Click="LaadParkeerKaart_Click"/>
 
             </MenuItem>
 
@@ -184,9 +188,12 @@
                                         <Setter Property="Background" Value="#F2F2F2"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding FirstWarning}" Value="True">
-                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Orange"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding FinalWarning}" Value="True">
+                                        <Setter Property="Foreground" Value="Red"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HasFault}" Value=">0">
                                         <Setter Property="Background" Value="Red"/>
                                         <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
@@ -201,8 +208,10 @@
                             <DataGridTextColumn Header="Telefoon" Binding="{Binding Gsm}" Width="*" />
                             <DataGridCheckBoxColumn Header="Dag kaart" Binding="{Binding DagKaart}" Width="Auto"/>
                             <DataGridTextColumn Header="Tijd inrijden"
-                            Binding="{Binding TijdInrijden, StringFormat=HH:mm}"
+                            Binding="{Binding UurInrijden, StringFormat=HH:mm}"
                             Width="Auto"/>
+                            <DataGridTextColumn Header="Waarschuwingen"
+                                                Binding="{Binding Fault}" Width="Auto"/>
                         </DataGrid.Columns>
                         <DataGrid.Resources>
 
@@ -216,43 +225,84 @@
 
 
             <TabItem Header="Overzicht">
-                <DataGrid x:Name="DgRegistraties"
-          AutoGenerateColumns="False"
-                  
-          IsReadOnly="True"
-          CanUserAddRows="False"
-          SelectionMode="Single"
-          GridLinesVisibility="Horizontal"
-          AlternatingRowBackground="#F2F2F2"
-          HeadersVisibility="Column">
+                <StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="txtSDatum"           Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSFirma"           Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSNummerplaat"     Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSVoornaam"        Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSFamilienaam"     Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSLocatie"         Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSGSM"             Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSContactpersoon"  Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSDagkaart"        Width="40" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSTijdInrijden"    Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSTijdUitrijden"   Width="100" TextChanged="Filter_TextChanged"/>
+                        <TextBox x:Name="txtSWaarschuwingen"  Width="100" TextChanged="Filter_TextChanged"/>
+                    </StackPanel>
+
+                    <DataGrid x:Name="DgRegistraties"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          SelectionMode="Single"
+                          GridLinesVisibility="Horizontal"
+                          AlternatingRowBackground="#F2F2F2"
+                          HeadersVisibility="Column">
 
 
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <EventSetter Event="MouseDoubleClick" Handler="OverviewRow_DoubleClick"/>
+                            </Style>
+                        </DataGrid.RowStyle>
 
-                            <EventSetter Event="MouseDoubleClick" Handler="OverviewRow_DoubleClick"/>
-                        </Style>
-                    </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Datum" Binding="{Binding Datum, StringFormat=dd/MM/yyyy}" Width="100"/>
+                            <DataGridTextColumn Header="Firma" Binding="{Binding Firma}" Width="100"/>
+                            <DataGridTextColumn Header="Nummerplaat" Binding="{Binding Nummerplaat}" Width="100"/>
+                            <DataGridTextColumn Header="Voornaam" Binding="{Binding Voornaam}" Width="100"/>
+                            <DataGridTextColumn Header="Familienaam" Binding="{Binding Familienaam}" Width="100"/>
+                            <DataGridTextColumn Header="Locatie" Binding="{Binding Bestemming}" Width="100"/>
+                            <DataGridTextColumn Header="GSM" Binding="{Binding Gsm}" Width="100"/>
+                            <DataGridTextColumn Header="Contact persoon" Binding="{Binding Contactpersoon}" Width="100"/>
+                            <DataGridCheckBoxColumn Header="Dag" Binding="{Binding DagKaart}" Width="40"/>
+                            <DataGridTextColumn Header="Tijd inrijden" Binding="{Binding UurInrijden, StringFormat=HH:mm}"
+                            Width="100" />
+                            <DataGridTextColumn Header="Tijd Uitrijden" Binding="{Binding UurUitrijden, StringFormat=HH:mm}"
+                            Width="100" />
+                            <DataGridTextColumn Header="Waarschuwingen" Binding="{Binding Fault}"
+                            Width="100" />
 
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Datum" Binding="{Binding Datum, StringFormat=dd/MM/yyyy}" Width="*"/>
-                        <DataGridTextColumn Header="Firma" Binding="{Binding Firma}" Width="*"/>
-                        <DataGridTextColumn Header="Nummerplaat" Binding="{Binding Nummerplaat}" Width="*"/>
-                        <DataGridTextColumn Header="Voornaam" Binding="{Binding Voornaam}" Width="*"/>
-                        <DataGridTextColumn Header="Familienaam" Binding="{Binding Familienaam}" Width="*"/>
-                        <DataGridTextColumn Header="Locatie" Binding="{Binding Bestemming}" Width="*"/>
-                        <DataGridTextColumn Header="GSM" Binding="{Binding Gsm}" Width="*"/>
-                        <DataGridTextColumn Header="Contact persoon" Binding="{Binding Contactpersoon}" Width="*"/>
-                        <DataGridCheckBoxColumn Header="Dag kaart" Binding="{Binding DagKaart}" Width="Auto"/>
-                        <DataGridTextColumn Header="Tijd inrijden" Binding="{Binding TijdInrijden, StringFormat=HH:mm}"
-                            Width="Auto" />
-                        <DataGridTextColumn Header="Tijd Uitrijden" Binding="{Binding TijdUitrijden, StringFormat=HH:mm}"
-                            Width="Auto" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </TabItem>
 
 
+            <TabItem Header="EV Parking">
+                <StackPanel>
 
-                    </DataGrid.Columns>
-                </DataGrid>
+
+                    <DataGrid AutoGenerateColumns="False" 
+                          x:Name="EVLijst"          
+                          IsReadOnly="True"
+                         CanUserAddRows="False"
+                         SelectionMode="Single"
+                         GridLinesVisibility="Horizontal"
+                         AlternatingRowBackground="#F2F2F2"
+                         HeadersVisibility="Column">
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn Header="Nummerplaat" />
+                            <DataGridTextColumn Header="Automerk"/>
+                            <DataGridTextColumn Header="Kleur"/>
+                            <DataGridTextColumn Header="GSM nummer"/>
+                            <DataGridTextColumn Header="Naam chauffeur"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
             </TabItem>
         </TabControl>
 

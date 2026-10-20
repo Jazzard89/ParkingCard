@@ -27,7 +27,7 @@ public partial class Print : Window
     public Registratie Registratie { get; }
     public string ColorToday { get; }
     public string DatumVoluit { get; }
-    public string TijdTekst => Registratie.TijdInrijden.ToString("HH:mm");
+    public string TijdTekst => Registratie.TijdInrijden.ToString("HH:mm") ?? "-";
     public string NaamChauffeur => $"{Registratie.Voornaam} {Registratie.Familienaam}".Trim();
 
     public Print(Registratie registratie)

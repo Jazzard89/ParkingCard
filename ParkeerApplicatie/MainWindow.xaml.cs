@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Text.Json;
 
 namespace ParkeerApplicatie;
 
@@ -17,14 +18,42 @@ public partial class MainWindow : Window
 {
     private static readonly string VoorkeurenPad = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        "Voorkeuren.txt");
+        "Voorkeuren.json");
+
+    private static readonly string OudVoorkeurenPad = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+    "Voorkeuren.txt");
+
+    private readonly Dictionary<FileType, string> _paden = new();
+
+    private static Dictionary<FileType, string> LeesVoorkeuren()
+    {
+        try
+        {
+            if (File.Exists(VoorkeurenPad))
+                return JsonSerializer.Deserialize<Dictionary<FileType, string>>(
+                           File.ReadAllText(VoorkeurenPad)) ?? new();
+
+            // Migratie: het oude bestand bevatte enkel het pad van de parkeerkaart.
+            if (File.Exists(OudVoorkeurenPad))
+            {
+                var tekst = File.ReadAllText(OudVoorkeurenPad).Trim();
+                var delen = tekst.Split(';');
+                var pad = delen.Length == 2 ? Path.Combine(delen[0], delen[1]) : tekst;
+                return new() { [FileType.Parkeerkaart] = pad };
+            }
+        }
+        catch (Exception ex) when (ex is IOException or JsonException) { }
+        return new();
+    }
 
     private readonly RegistratieStore _store = new();
-
+    public enum FileType { Parkeerkaart, EvOvertreders, EvKaarthouders }
     // Eén bron van waarheid: alle registraties uit het bestand.
     private readonly ObservableCollection<Registratie> _alle = new();
     // Gefilterde weergave: wie vandaag aanwezig is (nog niet uitgeschreven).
     private readonly ICollectionView _aanwezigVandaag;
+    private readonly ICollectionView _overzicht;
 
     private readonly ObservableCollection<string> _familienamen = new();
     private readonly ObservableCollection<string> _voornamen = new();
@@ -32,6 +61,8 @@ public partial class MainWindow : Window
     public bool PostOverste { get; set; }
 
     private string? _excelPad;
+
+
 
     public MainWindow()
     {
@@ -44,7 +75,10 @@ public partial class MainWindow : Window
 
         TxtNaam.ItemsSource = _familienamen;
         TxtVoornaam.ItemsSource = _voornamen;
-        DgRegistraties.ItemsSource = _alle;
+        _overzicht = new CollectionViewSource { Source = _alle }.View;
+        _overzicht.Filter = OverzichtFilter;
+        DgRegistraties.ItemsSource = _overzicht;
+        
         DgRegistraties2.ItemsSource = _aanwezigVandaag;
 
         // Her-evalueert filter en waarschuwingskleuren (oranje/rood) regelmatig.
@@ -62,38 +96,43 @@ public partial class MainWindow : Window
 
     private void LaadVoorkeur()
     {
-        try
-        {
-            if (!File.Exists(VoorkeurenPad)) return;
-
-            var tekst = File.ReadAllText(VoorkeurenPad).Trim();
-            var delen = tekst.Split(';');
-            // Oud formaat: "map;bestandsnaam". Nieuw formaat: volledig pad.
-            var pad = delen.Length == 2 ? Path.Combine(delen[0], delen[1]) : tekst;
-
-            if (File.Exists(pad)) Laad(pad);
-        }
-        catch (IOException) { /* voorkeur is niet kritiek */ }
+        foreach (var (soort, pad) in LeesVoorkeuren())
+            if (File.Exists(pad) && Laad(soort, pad))
+                _paden[soort] = pad;
     }
 
-    private static void BewaarVoorkeur(string pad)
+    private void BewaarVoorkeur(FileType soort, string pad)
     {
-        try { File.WriteAllText(VoorkeurenPad, pad); }
+        _paden[soort] = pad;
+        try { File.WriteAllText(VoorkeurenPad, JsonSerializer.Serialize(_paden)); }
         catch (IOException) { }
     }
 
-    private bool Laad(string pad)
+    private bool Laad(FileType soort, string pad)
     {
         try
         {
-            var rijen = _store.Laad(pad);
+            var echtPad = LosOpSnelkoppeling(pad);
 
-            _alle.Clear();
-            foreach (var r in rijen) _alle.Add(r);
+            switch (soort)
+            {
+                case FileType.Parkeerkaart:
+                    var rijen = _store.Laad(echtPad);
+                    _alle.Clear();
+                    foreach (var r in rijen) _alle.Add(r);
+                    _excelPad = echtPad;
+                    VulSuggesties();
+                    _aanwezigVandaag.Refresh();
+                    break;
 
-            _excelPad = pad;
-            VulSuggesties();
-            _aanwezigVandaag.Refresh();
+                case FileType.EvOvertreders:
+                    // TODO: inlezen met een eigen store
+                    break;
+
+                case FileType.EvKaarthouders:
+                    // TODO: inlezen en aan EVLijst.ItemsSource hangen
+                    break;
+            }
             return true;
         }
         catch (IOException)
@@ -111,19 +150,33 @@ public partial class MainWindow : Window
         return false;
     }
 
-    private void Laad_Click(object sender, RoutedEventArgs e)
+
+    //LaadEVOvertreders_Click
+    //LaadKaartHouders_Click
+    private void LaadParkeerKaart_Click(object sender, RoutedEventArgs e)
     {
+        if (sender is not MenuItem item) return;
+
+        FileType soort;
+        switch (item.Name)
+        {
+            case "parkeerkaart": soort = FileType.Parkeerkaart; break;
+            case "evOvertreders": soort = FileType.EvOvertreders; break;
+            case "evKaarthouders": soort = FileType.EvKaarthouders; break;
+            default: return;
+        }
+
         var dialog = new OpenFileDialog
         {
             Title = "Kies het Excel bestand",
-            Filter = "Excel bestanden (*.xlsx)|*.xlsx"
+            Filter = "Excel of snelkoppeling (*.xlsx;*.xlsm;*.url)|*.xlsx;*.xlsm;*.url|Alle bestanden (*.*)|*.*",
         };
         if (dialog.ShowDialog() != true) return;
 
-        if (Laad(dialog.FileName))
+        if (Laad(soort, dialog.FileName))
         {
-            BewaarVoorkeur(dialog.FileName);
-            MessageBox.Show($"{_alle.Count} registraties ingelezen.", "Import klaar",
+            BewaarVoorkeur(soort, dialog.FileName);
+            MessageBox.Show("Bestand ingelezen.", "Import klaar",
                             MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
@@ -384,6 +437,76 @@ public partial class MainWindow : Window
             _aanwezigVandaag.Refresh();      // verdwijnt uit "Momenteel on site"
             DgRegistraties.Items.Refresh();  // toont de uitrijtijd in het overzicht
         }
+
+        var uitschrijven = MessageBox.Show($"{reg.Voornaam} {reg.Familienaam} uitschrijven?",
+            "Uitschrijven", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+        if (uitschrijven == MessageBoxResult.Yes)
+        {
+            var nu = DateTime.Now;
+            nu = new DateTime(nu.Year, nu.Month, nu.Day, nu.Hour, nu.Minute, 0);
+
+            if (!ProbeerSchrijven(() => _store.ZetUitrijden(_excelPad, reg, nu))) return;
+            reg.TijdUitrijden = nu;
+        }
+        else
+        {
+            var waarschuwen = MessageBox.Show($"{reg.Voornaam} {reg.Familienaam} een waarschuwing geven?",
+                "Waarschuwing", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (waarschuwen != MessageBoxResult.Yes) return;   // niets doen
+
+            var nieuw = (reg.Fault ?? 0) + 1;
+            if (!ProbeerSchrijven(() => _store.ZetFault(_excelPad, reg, nieuw))) return;
+            reg.Fault = nieuw;
+        }
+
+        _aanwezigVandaag.Refresh();
+        DgRegistraties.Items.Refresh();
+    }
+
+    private void Filter_TextChanged(object sender, TextChangedEventArgs e) => _overzicht?.Refresh();
+
+    private static bool Bevat(string? waarde, string zoek) =>
+        zoek.Length == 0
+        || (waarde ?? "").Contains(zoek, StringComparison.CurrentCultureIgnoreCase);
+
+    private bool OverzichtFilter(object o)
+    {
+        if (o is not Registratie r) return false;
+
+        return Bevat(r.Datum.ToString("dd/MM/yyyy"), txtSDatum.Text.Trim())
+            && Bevat(r.Firma, txtSFirma.Text.Trim())
+            && Bevat(r.Nummerplaat, txtSNummerplaat.Text.Trim())
+            && Bevat(r.Voornaam, txtSVoornaam.Text.Trim())
+            && Bevat(r.Familienaam, txtSFamilienaam.Text.Trim())
+            && Bevat(r.Bestemming, txtSLocatie.Text.Trim())
+            && Bevat(r.Gsm, txtSGSM.Text.Trim())
+            && Bevat(r.Contactpersoon, txtSContactpersoon.Text.Trim())
+            && Bevat(r.DagKaart ? "ja" : "nee", txtSDagkaart.Text.Trim())
+            && Bevat(r.TijdInrijden.ToString("HH:mm") ?? "-", txtSTijdInrijden.Text.Trim())
+            && Bevat(r.TijdUitrijden?.ToString("HH:mm"), txtSTijdUitrijden.Text.Trim())
+            && Bevat((r.Fault ?? 0).ToString(), txtSWaarschuwingen.Text.Trim());
+    }
+    private static string LosOpSnelkoppeling(string pad)
+    {
+        if (!pad.EndsWith(".url", StringComparison.OrdinalIgnoreCase)) return pad;
+
+        var regel = File.ReadLines(pad)
+            .FirstOrDefault(l => l.StartsWith("URL=", StringComparison.OrdinalIgnoreCase));
+        var url = regel?[4..].Trim();
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            throw new InvalidDataException("De snelkoppeling bevat geen geldige URL.");
+
+        if (!uri.IsFile)
+            throw new InvalidDataException(
+                "Deze snelkoppeling verwijst naar een webadres (http/https). " +
+                "Kies een snelkoppeling naar een bestand op de schijf of een netwerkmap.");
+
+        if (!File.Exists(uri.LocalPath))
+            throw new InvalidDataException($"Het doelbestand bestaat niet: {uri.LocalPath}");
+
+        return uri.LocalPath;
     }
 
     private void OverviewRow_DoubleClick(object sender, MouseButtonEventArgs e)
@@ -404,5 +527,7 @@ public partial class MainWindow : Window
             "Details", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
+
     #endregion
+
 }

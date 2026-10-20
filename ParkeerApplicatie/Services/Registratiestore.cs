@@ -21,10 +21,11 @@ public sealed class RegistratieStore
         ("contactpersoon", "Contactpersoon"),
         ("vergunning", "Vergunning"),
         ("dagkaart", "Dagkaart"),
-        ("tijdinrijden", "Tijd inrijden"),
+        ("TijdInrijden", "Tijd inrijden"),
         ("tijduitrijden", "Tijd uitrijden"),
         ("gsm", "GSM"),
         ("typevoertuig", "Type voertuig"),
+        ("fault", "Waarschuwingen"),
     };
 
     // Andere schrijfwijzen van dezelfde kolom (na normaliseren: kleine letters, zonder spaties en leestekens).
@@ -38,6 +39,8 @@ public sealed class RegistratieStore
         ["dagkaartjanee"] = "dagkaart",
         ["gsmnummer"] = "gsm",
         ["telefoon"] = "gsm",
+        ["waarschuwingen"] = "fault",
+        ["fault"] = "fault",
     };
 
     public List<Registratie> Laad(string pad)
@@ -51,6 +54,8 @@ public sealed class RegistratieStore
             if (!k.ContainsKey(verplicht))
                 throw new InvalidDataException($"De kolom '{KopVan(verplicht)}' ontbreekt in het Excel-bestand.");
         }
+
+
 
         string Tekst(IXLRow r, string sleutel) =>
             k.TryGetValue(sleutel, out var c) ? r.Cell(c).GetString().Trim() : "";
@@ -93,6 +98,7 @@ public sealed class RegistratieStore
                 TijdUitrijden = uit is null ? null : datum.Date + uit.Value,
                 Gsm = Tekst(rij, "gsm"),
                 TypeVoertuig = Tekst(rij, "typevoertuig"),
+                Fault = int.TryParse(Tekst(rij, "fault"), out var f) ? f : 0,
             });
         }
 
@@ -120,21 +126,34 @@ public sealed class RegistratieStore
         ws.Cell(rij, k["tijdinrijden"]).SetValue(reg.TijdInrijden.TimeOfDay).Style.DateFormat.Format = "HH:mm";
         ws.Cell(rij, k["gsm"]).SetValue(reg.Gsm);
         ws.Cell(rij, k["typevoertuig"]).SetValue(reg.TypeVoertuig);
+        ws.Cell(rij, k["fault"]).SetValue(reg.Fault ?? 0);
 
         wb.Save();
         reg.RijNummer = rij;
     }
 
-    /// <summary>Schrijft de uitrijtijd in de rij van deze registratie.</summary>
     public void ZetUitrijden(string pad, Registratie reg, DateTime tijd)
     {
         using var wb = new XLWorkbook(pad);
+        var (rij, k) = ZoekRij(wb, reg);
+        rij.Cell(k["tijduitrijden"]).SetValue(tijd.TimeOfDay).Style.DateFormat.Format = "HH:mm";
+        wb.Save();
+    }
+
+    public void ZetFault(string pad, Registratie reg, int aantal)
+    {
+        using var wb = new XLWorkbook(pad);
+        var (rij, k) = ZoekRij(wb, reg);
+        rij.Cell(k["fault"]).SetValue(aantal);
+        wb.Save();
+    }
+
+    private static (IXLRow rij, Dictionary<string, int> k) ZoekRij(XLWorkbook wb, Registratie reg)
+    {
         var ws = wb.Worksheet(1);
         var k = ZorgVoorKoppen(ws);
-
         var rij = ws.Row(reg.RijNummer);
 
-        // Controle: staat op die rij nog steeds dezelfde persoon? (bestand kan intussen aangepast zijn)
         bool zelfde =
             rij.Cell(k["datum"]).TryGetValue<DateTime>(out var datum) && datum.Date == reg.Datum.Date
             && rij.Cell(k["familienaam"]).GetString().Trim().Equals(reg.Familienaam, StringComparison.OrdinalIgnoreCase)
@@ -145,8 +164,7 @@ public sealed class RegistratieStore
                 "De rij in het Excel-bestand komt niet meer overeen met deze registratie " +
                 "(is het bestand intussen gewijzigd?). Laad het bestand opnieuw via Bestand > Kies bestand.");
 
-        rij.Cell(k["tijduitrijden"]).SetValue(tijd.TimeOfDay).Style.DateFormat.Format = "HH:mm";
-        wb.Save();
+        return (rij, k);
     }
 
     // ---------- hulpmethodes ----------
